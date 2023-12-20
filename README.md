@@ -30,7 +30,7 @@ A simple example of the FBXMotionToolkit can be seen below, where it is being us
 import FBXMotionToolkit as fmt
 
 # Specify paths to fbx motion file and joint map file
-sampleDataFolder = r'C:\TestData\\'
+sampleDataFolder = r'C:\TestFolder\\'
 motionFile = sampleDataFolder + "aligned_walk_01.fbx"
 jointMapFile = sampleDataFolder + "viconMap.csv"
 

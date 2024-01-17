@@ -43,6 +43,7 @@ d = jointQuats.measureSimilarity(jointQuats2)
 print(d)
 c = jointQuats.getSimilarityMatix(jointQuats2)
 print(c)
+print("Hello")
 
 
 

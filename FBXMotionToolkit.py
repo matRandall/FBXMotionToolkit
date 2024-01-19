@@ -1,9 +1,31 @@
 from FBXSequence import FBXSequence
+import timewarp as tw
+import similarityTools as st
 import csv
+import JointDataClasses as jc
+import sys
+
+st = st
 
 def importFBXSequence(filepath):
     importedSeq = FBXSequence(filepath)
     return importedSeq
+
+class timewarp():
+
+    def __init__(self, inputMotion, targetMotion):
+
+        inputMotion.errorCheckMatchingJointCount(targetMotion)
+        inputMotion.errorCheckMatchingClass(targetMotion)
+        inputMotion.errorCheckHasDifferenceFunction()
+
+        self.costMatrix = st.getSimilarityMatrix(inputMotion, targetMotion)
+        self.accumulatedCostMatrix = tw.accumulatedCostMatrix(self.costMatrix)
+        self.DTWremap = tw.plotDTW(self.accumulatedCostMatrix)
+
+    def graphTimewarp(self):
+        tw.graphDTW(self.accumulatedCostMatrix, DTWmap=self.DTWremap)
+
 
 class animationCurveType():
     TRANSLATION = "translation"

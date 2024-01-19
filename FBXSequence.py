@@ -1,3 +1,4 @@
+import math
 from platform import node
 
 import fbx
@@ -183,6 +184,17 @@ class FBXSequence():
 
         # return the number of keys in the first animation curve
         return lCurves[axis].KeyGetCount()
+
+    def getFramesPerSecond(self, joint, animationType, axis):
+
+        curves = self.getJointAnimCurves(joint, animationType)[axis]
+        t1 = curves.KeyGet(0).GetTime()
+        t2 = curves.KeyGet(1).GetTime()
+        fTime = t2 - t1
+        fTimeSec = fTime.GetSecondDouble()
+        fps = round(1. / fTimeSec)
+
+        return fps
 
     # Gets the animation curves for a specified joint and animation curve type ("rotation" or "translation")
     def getJointAnimCurves(self, joint, animationType):
@@ -464,7 +476,7 @@ class FBXSequence():
         input.CopyFrom(newCurve, True)
 
     # perform universal timewarp of motion to a given duration in seconds by moving the key in each curve
-    def UTW(self, currentDuration, newDuration):
+    def UTW(self, currentDuration, newDuration, fps):
 
         # create a list of all the joints in sequence
         motionRoot = self.jointMap[fmt.joint.root]
@@ -498,6 +510,8 @@ class FBXSequence():
                 for keyNum in range(numKeys):
                     self.retimeKey(animCurve, keyNum, newDuration, currentDuration)
 
+        self.resample(fps, newDuration)
+
     # retime a key a to fit a new motion duration
     def retimeKey(self, animCurve, keyNum, targetDuration, oldDuration):
 
@@ -515,6 +529,127 @@ class FBXSequence():
         # set the key frame to the new time
         keyVal = animCurve.KeyGet(keyNum).GetValue()
         animCurve.KeySet(keyNum, frameTime, keyVal)
+
+    def applyTimewarp(self, DTWmap):
+
+        totalFramesOfOrginalMotion = self.getNumberKeyframes(fmt.joint.root, fmt.animationCurveType.ROTATION, fmt.axis.x)
+
+        motionRoot = self.jointMap["root"]
+        nodeList = [motionRoot]
+        nodeList += self.getAllChildren(motionRoot)
+
+        # get the first animation stack and animation layer
+        lAnimStack = self.animStack
+        lAnimLayer = self.animLayer
+
+        # set up a list of axis
+        axis = ["X", "Y", "Z"]
+
+        # timewarp the rotation curves of each subsequent node
+        for node in nodeList:
+            for ax in axis:
+                curve = node.LclRotation.GetCurve(lAnimLayer, ax, False)
+                if curve != None:
+                    if curve.KeyGetCount() == totalFramesOfOrginalMotion:
+                        #print("rot" + node.GetName())
+                        self.DTWtimewarpCurve(curve, DTWmap)
+                curve = node.LclTranslation.GetCurve(lAnimLayer, ax, False)
+                if curve != None:
+                    if curve.KeyGetCount() == totalFramesOfOrginalMotion:
+                        #print("trans" + node.GetName())
+                        self.DTWtimewarpCurve(curve, DTWmap)
+
+        # set the timespane of the take
+        startTime = fbx.FbxTime()
+        startTime.SetSecondDouble(0.)
+
+        endTime = fbx.FbxTime()
+        endTime.SetSecondDouble(self.getTimeOfLastKey(fmt.joint.root, fmt.animationCurveType.ROTATION, fmt.axis.x))
+
+        timeSpan = fbx.FbxTimeSpan(startTime, endTime)
+
+        lAnimStack.SetLocalTimeSpan(timeSpan)
+        lAnimStack.SetReferenceTimeSpan(timeSpan)
+
+    # applies a timewarp to a curve using DTWmap
+    def DTWtimewarpCurve(self, curve, DTWmap):
+
+        fps = self.getFramesPerSecond(fmt.joint.root, fmt.animationCurveType.ROTATION, fmt.axis.x)
+        frameInterval = 1. / float(fps)
+
+        time = 0.
+
+        # save unwarped values of the curve
+        oldCurveValues = []
+        for i in range(curve.KeyGetCount()):
+            oldCurveValues.append(curve.KeyGet(i).GetValue())
+
+        # wipe the keys on the curve
+        curve.KeyClear()
+
+        # write the old values fo the curve back to the curve using the warp.
+        for i in range(len(DTWmap)):
+            newValue = oldCurveValues[DTWmap[i]]
+
+            newTime = fbx.FbxTime()
+            newTime.SetSecondDouble(time)
+
+            newKeyIndex = curve.KeyAdd(newTime)
+            curve.KeySetValue(newKeyIndex[0], newValue)
+
+            time += frameInterval
+
+    def unrollJointAxis(self, joint, animationType, axis):
+        curve = self.getJointAnimCurves(joint, animationType)[axis]
+        self.unrollCurves([curve])
+
+    def unrollJoint(self, joint, animationType):
+        curves = self.getJointAnimCurves(joint, animationType)
+        self.unrollCurves(curves)
+
+    def unrollAllJoints(self):
+        curves = []
+
+        # create a list of all the joints in sequence
+        motionRoot = self.jointMap["root"]
+        nodeList = [motionRoot]
+        nodeList += self.getAllChildren(motionRoot)
+
+        # set up a list of axis
+        axis = ["X", "Y", "Z"]
+
+        # resample of the frame in every joint
+        for node in nodeList:
+
+            # resample the translation curves
+            for ax in axis:
+                tCurve = node.LclTranslation.GetCurve(self.animLayer, ax, False)
+                if tCurve != None:
+                    curves.append(tCurve)
+                rCurve = node.LclRotation.GetCurve(self.animLayer, ax, False)
+                if rCurve != None:
+                    curves.append(rCurve)
+        self.unrollCurves(curves)
+
+    def unrollCurves(self, curves):
+
+        threshold = 340
+
+        for curve in curves:
+            increment = 0
+            keyCount = curve.KeyGetCount()
+            for key in range(1, keyCount):
+                lastkeyVal = curve.KeyGetValue(key - 1)
+                keyVal = curve.KeyGetValue(key)
+                keyVal += increment
+                dif = keyVal - lastkeyVal
+                if dif > threshold:
+                    increment -= 360
+                    keyVal -= 360
+                if dif < -threshold:
+                    increment += 360
+                    keyVal += 360
+                curve.KeySetValue(key, keyVal)
 
     def makeJointAnimatable(self, joint, animationType):
 
@@ -538,10 +673,10 @@ class FBXSequence():
         sceneRoot = self.scene.GetRootNode()
 
         for i in range(sceneRoot.GetChildCount()):
-            self.__PrintNodeHierarchyInfo(sceneRoot.GetChild(i), 0)
+            self.PrintNodeHierarchyInfo(sceneRoot.GetChild(i), 0)
 
 
-    def __PrintNodeHierarchyInfo(self, node, depth):
+    def PrintNodeHierarchyInfo(self, node, depth):
 
         # start text with an indend position of node in hierarchy
         text = ""

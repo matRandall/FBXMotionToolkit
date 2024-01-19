@@ -5,7 +5,6 @@ import math
 import JointDataClasses
 import sys
 
-
 class JointData():
 
     def __init__(self, joints, axisLabels, data):
@@ -24,6 +23,52 @@ class JointData():
 
     def getFrameCount(self):
         return self.data.shape[2]
+
+    def checkHasDifferenceFunction(self):
+        # check if joint type has a similarity matrix
+        if not hasattr(self, "getDifferenceBetweenFrames"):
+            return False
+        else:
+            return True
+
+    def errorCheckHasDifferenceFunction(self):
+        if self.checkHasDifferenceFunction() == False:
+            print("Joint data type doesn't support measuring differences between frames")
+            sys.exit()
+
+    def checkMatchingFrameCount(self, targetMotionJointData):
+        if self.getFrameCount() != targetMotionJointData.getFrameCount():
+            return False
+        else:
+            return True
+
+    def errorCheckMatchingFrameCount(self, targetMotionJointData):
+        if self.checkMatchingFrameCount(targetMotionJointData) == False:
+            print("Error: The motion sequences do not have matching frame counts")
+            sys.exit()
+
+    def checkMatchingJointCount(self, targetMotionJointData):
+        if self.getJointCount() != targetMotionJointData.getJointCount():
+            return False
+        else:
+            return True
+
+    def errorCheckMatchingJointCount(self, targetMotionJointData):
+        if self.checkMatchingJointCount(targetMotionJointData) == False:
+            print("Error: The two sets of joint data do not have matching numbers of joints")
+            sys.exit()
+
+    def checkMatchingClass(self, targetMotionJointData):
+        if self.__class__.__name__ != targetMotionJointData.__class__.__name__:
+            return False
+        else:
+            return True
+
+    def errorCheckMatchingClass(self, targetMotionJointData):
+        if self.checkMatchingClass(targetMotionJointData) == False:
+            print("Error: The motion sequences do not have matching joint data types")
+            sys.exit()
+        return True
 
     # returns all the frame data for a given joint and axis as a numpy array
     def getJointAxisData(self, joint, axis):
@@ -63,7 +108,7 @@ class JointData():
 
         for j in range(jointCount):
             for a in range(axisCount):
-                axisValues = self.getJointAxisData(self.joints[j], a)
+                axisValues = self.getJointAxisData(self.joints[j], self.axisLabels[a])
                 flatJointData[counter] = axisValues
                 counter += 1
 
@@ -112,25 +157,6 @@ class JointData():
         plt.tight_layout()
         plt.show()
 
-    def checkMatchBetweenJointData(self, secondMotionJointData):
-
-        motion1 = self
-        motion2 = secondMotionJointData
-
-        if motion1.getFrameCount() != motion2.getFrameCount():
-            print("Error: The motion sequences do not have matching frame counts")
-            return False
-
-        if motion1.__class__.__name__ != motion2.__class__.__name__:
-            print("Error: The motion sequences do not have matching data types")
-            return False
-
-        if motion1.joints != motion2.joints:
-            print("Error: The motion sequences do have a matching set of joints")
-            return False
-
-        return True
-
 # class inherits joint data to create a class for working with Euler joints
 class JointDataEulers(JointData):
 
@@ -150,7 +176,7 @@ class JointDataQuaternions(JointData):
     # Function retrieves the distance between individual frames of specified joints.
     # Frames can be within the same motion sequence or from two different motion sequences.
     # If given multiple joints it will give you the sum of the difference of all the joints supplied
-    def getRotationalDistanceBetweenFrames(self, jointList, firstMotionFrame, secondMotionJointData, secondMotionFrame):
+    def getDifferenceBetweenFrames(self, jointList, firstMotionFrame, secondMotionJointData, secondMotionFrame):
 
         dist = 0.
 
@@ -179,54 +205,13 @@ class JointDataQuaternions(JointData):
 
         for f in range(1, self.getFrameCount()):
             for j in range(self.getJointCount()):
-                jointFrameSpeed = self.getRotationalDistanceBetweenFrames([self.joints[j]], f - 1, self, f)
+                jointFrameSpeed = self.getDifferenceBetweenFrames([self.joints[j]], f - 1, self, f)
                 jointFrameSpeed = jointFrameSpeed * 180.
                 jointSpeedData[j][0].append(jointFrameSpeed)
 
         axisLabels = ["deg/frame"]
         jointSpeedDataObj = JointDataClasses.JointDataRotationalSpeed(self.joints, axisLabels, jointSpeedData)
         return jointSpeedDataObj
-
-    # Function returns the similarity of two motions base on rotational distance.
-    # The total rotation distance between the two motions is divided by the joint multiplied frames
-    def measureSimilarityRotationalDistance(self, secondMotionJointData):
-
-        motion1 = self
-        motion2 = secondMotionJointData
-
-        if motion1.checkMatchBetweenJointData(motion2) == False:
-            return None
-
-        sum = 0
-
-        for f in range(motion1.getFrameCount()):
-            d = motion1.getRotationalDistanceBetweenFrames(motion1.joints, f, motion2, f)
-            sum += d
-
-        avgDist = sum / (motion1.getJointCount() * motion2.getFrameCount())
-
-        return avgDist
-
-    def getSimilarityMatixRotationalDistance(self, secondMotionJointData):
-
-        motion1 = self
-        motion2 = secondMotionJointData
-
-        costMatrix = np.empty((motion1.getFrameCount(), motion2.getFrameCount()))
-
-        cellCount = 0
-        totalCells = motion1.getFrameCount() * motion2.getFrameCount()
-
-        for f1 in range(motion1.getFrameCount()):
-            for f2 in range(motion2.getFrameCount()):
-                costMatrix[f1, f2] = motion1.getRotationalDistanceBetweenFrames(motion1.joints, f1, motion2, f2)
-                cellCount += 1
-                progress = int((cellCount / totalCells) * 100)
-                sys.stdout.write("\rprogress: " + str(progress) + "%")
-                sys.stdout.flush()
-
-        print("\n")
-        return costMatrix
 
 # class inherits joint data to create a class containing Matrix joint data
 class JointDataMatrices(JointData):
@@ -264,23 +249,23 @@ class JointDataVectors(JointData):
         JointData.__init__(self, joints, axisLabels, data)
 
     # returns the distance between to motion frames as vector, relative to the first motion.
-    def getDistanceBetweenFramesAsVector(self, joint, firstMotionFrame, secondMotionJointData, secondMotionFrame):
+    def getDistanceBetweenFramesAsVector(self, joint, inputMotionFrame, targetMotionJointData, targetMotionFrame):
 
-        v1 = self.getJointFrameData(joint, firstMotionFrame)
-        v2 = secondMotionJointData.getJointFrameData(joint, secondMotionFrame)
+        v1 = self.getJointFrameData(joint, inputMotionFrame)
+        v2 = targetMotionJointData.getJointFrameData(joint, targetMotionFrame)
 
         vDist = v2 - v1
 
         return vDist
 
-    def getDifferenceBetweenFrames(self, jointList, firstMotionFrame, secondMotionJointData, secondMotionFrame):
+    def getDifferenceBetweenFrames(self, jointList, inputMotionFrame, targetMotionJointData, targetMotionFrame):
 
         sumDiff = 0.
 
         for j in jointList:
 
-            v1 = self.getJointFrameData(j, firstMotionFrame)
-            v2 = secondMotionJointData.getJointFrameData(j, secondMotionFrame)
+            v1 = self.getJointFrameData(j, inputMotionFrame)
+            v2 = targetMotionJointData.getJointFrameData(j, targetMotionFrame)
 
             vDist = v2 - v1
             dist = math.sqrt(math.fabs(vDist[0]) + math.fabs(vDist[1]) + math.fabs(vDist[2]))
@@ -322,44 +307,7 @@ class JointDataVectors(JointData):
         jointSpeedDataObj = JointDataClasses.JointDataVectorVelocity(self.joints, axisLabels, jointSpeedData, dataType)
         return jointSpeedDataObj
 
-    def measureSimilarity(self, secondMotionJointData):
 
-        motion1 = self
-        motion2 = secondMotionJointData
-
-        if motion1.checkMatchBetweenJointData(motion2) == False:
-            return None
-
-        sum = 0
-
-        for f in range(motion1.getFrameCount()):
-            d = motion1.getDifferenceBetweenFrames(motion1.joints, f, motion2, f)
-            sum += d
-
-        avgDist = sum / (motion1.getJointCount() * motion2.getFrameCount())
-
-        return avgDist
-
-    def getSimilarityMatix(self, secondMotionJointData):
-
-        motion1 = self
-        motion2 = secondMotionJointData
-
-        costMatrix = np.empty((motion1.getFrameCount(), motion2.getFrameCount()))
-
-        cellCount = 0
-        totalCells = motion1.getFrameCount() * motion2.getFrameCount()
-
-        for f1 in range(motion1.getFrameCount()):
-            for f2 in range(motion2.getFrameCount()):
-                costMatrix[f1, f2] = motion1.getDifferenceBetweenFrames(motion1.joints, f1, motion2, f2)
-                cellCount += 1
-                progress = int((cellCount / totalCells) * 100)
-                sys.stdout.write("\rprogress: " + str(progress) + "%")
-                sys.stdout.flush()
-
-        print("\n")
-        return costMatrix
 
 # class inherits joint data to create a class with joints parameterised as displacement vectors
 class JointDataDisplacementVectors(JointDataVectors):
@@ -405,45 +353,6 @@ class JointDataSpeed(JointData):
             sumDiff += dif
 
         return sumDiff
-
-    def measureSimilarity(self, secondMotionJointData):
-
-        motion1 = self
-        motion2 = secondMotionJointData
-
-        if motion1.checkMatchBetweenJointData(motion2) == False:
-            return None
-
-        sum = 0
-
-        for f in range(motion1.getFrameCount()):
-            d = motion1.getDifferenceBetweenFrames(motion1.joints, f, motion2, f)
-            sum += d
-
-        avgDist = sum / (motion1.getJointCount() * motion2.getFrameCount())
-
-        return avgDist
-
-    def getSimilarityMatix(self, secondMotionJointData):
-
-        motion1 = self
-        motion2 = secondMotionJointData
-
-        costMatrix = np.empty((motion1.getFrameCount(), motion2.getFrameCount()))
-
-        cellCount = 0
-        totalCells = motion1.getFrameCount() * motion2.getFrameCount()
-
-        for f1 in range(motion1.getFrameCount()):
-            for f2 in range(motion2.getFrameCount()):
-                costMatrix[f1, f2] = motion1.getDifferenceBetweenFrames(motion1.joints, f1, motion2, f2)
-                cellCount += 1
-                progress = int((cellCount / totalCells) * 100)
-                sys.stdout.write("\rprogress: " + str(progress) + "%")
-                sys.stdout.flush()
-
-        print("\n")
-        return costMatrix
 
     def getJointsAsDifferentials(self):
 

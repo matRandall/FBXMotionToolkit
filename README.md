@@ -24,14 +24,14 @@ More information on installing and using the FBX Python SDK can be foudn here: <
 
 ## Basic Usage
 
-A simple example of the FBXMotionToolkit can be seen below, where it is being used to resample a motion at 30 frames per second.
+A simple example of the FBXMotionToolkit in use can be seen below, where it is being used to extract Euler joint rotations and export them as .csv file.
 
 ```
 import FBXMotionToolkit as fmt
 
 # Specify paths to fbx motion file and joint map file
 sampleDataFolder = r'C:\TestFolder\\'
-motionFile = sampleDataFolder + "aligned_walk_01.fbx"
+motionFile = sampleDataFolder + "walk.fbx"
 jointMapFile = sampleDataFolder + "viconMap.csv"
 
 # Load the motion sequence, returning a reference.
@@ -40,14 +40,18 @@ seq = fmt.importFBXSequence(motionFile)
 # Map joints in the motion to joint names defined within the toolkit, using the jointMapFile. 
 seq.mapJoints(jointMapFile)
 
-# detime the end time of the motion based on the last key frame in the x-axis of the root joint.
+# determine the end time of the motion based on the last key frame in the x-axis of the root joint.
 endTime = seq.getTimeOfLastKey(fmt.joint.root, fmt.animationCurveType.ROTATION, fmt.axis.X)
 
-# resample the entire motion at 30 frames per second
-seq.resample(30, endTime)
+# resample the entire motion at 120 frames per second, to fill in gaps in data or redundent axis.
+seq.resample(120, endTime)
 
-# export the resulting motion
-seq.export(sampleDataFolder + "export.fbx")
+# Extract joint Euler rotation data for defined set of joints into a jointDataClass which simplifies working with joint data.
+jointList = [fmt.joint.rhip, fmt.joint.lhip]
+jointEulers = seq.getJointRotationAsEulers(jointList)
+
+# Export joints rotations as a CSV file.
+jointEulers.exportJointDataCSV(sampleDataFolder + "csvData.csv")
 
 # remove sequence from memory.
 seq.destroy()

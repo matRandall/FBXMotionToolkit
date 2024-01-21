@@ -34,7 +34,7 @@ sampleDataFolder = r'C:\TestFolder\\'
 motionFile = sampleDataFolder + "walk.fbx"
 jointMapFile = sampleDataFolder + "viconMap.csv"
 
-# Load the motion sequence, returning a reference.
+# Load the motion sequence, returning an FBXSequence object.
 seq = fmt.importFBXSequence(motionFile)
 
 # Map joints in the motion to joint names defined within the toolkit, using the jointMapFile. 
@@ -46,7 +46,7 @@ endTime = seq.getTimeOfLastKey(fmt.joint.root, fmt.animationCurveType.ROTATION, 
 # resample the entire motion at 120 frames per second, to fill in gaps in data or redundent axis.
 seq.resample(120, endTime)
 
-# Extract joint Euler rotation data for defined set of joints into a jointDataClass which simplifies working with joint data.
+# Extract joint Euler rotation data for defined set of joints into a jointData object which simplifies working with joint data.
 jointList = [fmt.joint.rhip, fmt.joint.lhip]
 jointEulers = seq.getJointRotationAsEulers(jointList)
 
@@ -58,10 +58,8 @@ seq.destroy()
 ```
 
 ## Documentation
-- Initialising the FBXSequence object and loading a motion
-- FBXSequenceClass
-- JointDataClass
-- SimilarityToolsClass
-- TimewarpToolsClass
-
-
+- [Initialising FBXSequence object](docs/Initialising FBXSequence object.md)
+- FBXSequence class
+- JointData class
+- SimilarityTools module
+- TimewarpingTools module

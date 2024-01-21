@@ -23,7 +23,7 @@ To allow an FBXSequence object to correctly access joints within an FBX file, a 
 
 The example below shows a .csv file mapping a joint to each standardised joints names. Each row consists of <standardised FBXSequence jointname>, <jointname within fbx file>.  An example joint map file can be seen in the test folder.
 
-The standardised joint names are enumerated in the FBXMotionToolkit.joint class.  The names of the joints within the files can be found by opening the FBX file in a DCC package or by using the the FBXSequence.PrintSceneHierarchy() function.
+The standardised joint names are enumerated in the FBXMotionToolkit.joint class.  The names of the joints within the files can be found by opening the FBX file in a DCC package or by using the the FBXSequence.printSceneHierarchy() function.
 
 ```
 root,Hips

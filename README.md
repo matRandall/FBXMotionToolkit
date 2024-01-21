@@ -58,7 +58,7 @@ seq.destroy()
 ```
 
 ## Documentation
-- Initialising the FBXMotionTookit and loading a motion
+- Initialising the FBXSequence object and loading a motion
 - FBXSequenceClass
 - JointDataClass
 - SimilarityToolsClass

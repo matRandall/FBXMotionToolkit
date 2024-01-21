@@ -56,3 +56,12 @@ jointEulers.exportJointDataCSV(sampleDataFolder + "csvData.csv")
 # remove sequence from memory.
 seq.destroy()
 ```
+
+## Documentation
+- Initialising the FBXMotionTookit and loading a motion
+- FBXSequenceClass
+- JointDataClass
+- SimilarityToolsClass
+- TimewarpToolsClass
+
+

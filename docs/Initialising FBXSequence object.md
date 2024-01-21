@@ -17,7 +17,7 @@ myFBX = seq = FBXMotionToolkit.importFBXSequence(r'C:\motionFile.fbx')
 ```
 ## Creating a Joint Map ##
 
-> void **FBXSequence.ImportFBXSequence**(string **JointMapFilePath**)
+> void **FBXSequence.mapJoints**(string **JointMapFilePath**)
 
 To allow an FBXSequence object to correctly access joints within an FBX file, a .csv joint map file must be created and loaded into the FBXSequence object.  The joint map file maps the names of the joints within the FBX file, to a standard set of joints names.  
 
@@ -51,3 +51,8 @@ belly,Spine1
 | Name | Data Type | Description |
 | --- | --- | --- |
 | JointMapFilePath | String | Path locating the .csv joint map file |
+
+**Example**
+```
+myFBX.mapJoints(r'C:\jointMapFile.csv')
+```

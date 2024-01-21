@@ -63,3 +63,5 @@ seq.destroy()
 - JointData class
 - SimilarityTools module
 - TimewarpingTools module
+
+  [Initialising FBXSequence object](docs/Initialising FBXSequence object.md)

@@ -31,7 +31,7 @@ class JointData():
         else:
             return True
 
-    def errorCheckHasDifferenceFunction(self):
+    def __errorCheckHasDifferenceFunction(self):
         if self.checkHasDifferenceFunction() == False:
             print("Joint data type doesn't support measuring differences between frames")
             sys.exit()
@@ -42,7 +42,7 @@ class JointData():
         else:
             return True
 
-    def errorCheckMatchingFrameCount(self, targetMotionJointData):
+    def __errorCheckMatchingFrameCount(self, targetMotionJointData):
         if self.checkMatchingFrameCount(targetMotionJointData) == False:
             print("Error: The motion sequences do not have matching frame counts")
             sys.exit()
@@ -53,7 +53,7 @@ class JointData():
         else:
             return True
 
-    def errorCheckMatchingJointCount(self, targetMotionJointData):
+    def __errorCheckMatchingJointCount(self, targetMotionJointData):
         if self.checkMatchingJointCount(targetMotionJointData) == False:
             print("Error: The two sets of joint data do not have matching numbers of joints")
             sys.exit()
@@ -64,7 +64,7 @@ class JointData():
         else:
             return True
 
-    def errorCheckMatchingClass(self, targetMotionJointData):
+    def __errorCheckMatchingClass(self, targetMotionJointData):
         if self.checkMatchingClass(targetMotionJointData) == False:
             print("Error: The motion sequences do not have matching joint data types")
             sys.exit()
@@ -377,6 +377,7 @@ class JointDataRotationalSpeed(JointDataSpeed):
         self.axes = rotationalSpeedAxis()
         self.dataType = "Rotation Speed"
         self.order = 1
+
 class JointDataDifferential(JointDataSpeed):
 
     def __init__(self, joints, axisLabels, data, dataType, order):

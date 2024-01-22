@@ -1,6 +1,3 @@
-import math
-from platform import node
-
 import fbx
 import sys
 import csv
@@ -15,37 +12,39 @@ class FBXSequence():
     # constuctor
     def __init__(self, motionFile):
 
-        # initialise properties
+        # initialise public properties
         self.file = motionFile
-        self.jointMap = {}
         self.jointNameMap = {}
-        self.animStackIndex = 0
-        self.animLayerIndex = 0
+        
+        # initialise private properties
+        self.__jointMap = {}
+        self.__animStackIndex = 0
+        self.__animLayerIndex = 0
 
         # create empty FBX scene
         self.fbxManager = fbx.FbxManager.Create()
 
         # import motion file
-        self.fbxImporter = fbx.FbxImporter.Create(self.fbxManager, 'theImporter')
-        self.importStatus = self.fbxImporter.Initialize(self.file)
+        self.__fbxImporter = fbx.FbxImporter.Create(self.fbxManager, 'theImporter')
+        self.__importStatus = self.__fbxImporter.Initialize(self.file)
 
         # check the import status before moving on - exit if needed
-        if self.importStatus == False:
+        if self.__importStatus == False:
             print("FBX import failed check file name")
             sys.exit()
 
         # if status is good create a new scene form the imported scene
         self.scene = fbx.FbxScene.Create(self.fbxManager, 'theScene')
-        self.fbxImporter.Import(self.scene)
-        self.fbxImporter.Destroy() # destroy importer once imported.
-        self.rootNode = self.scene.GetRootNode()
-        self.eval = self.scene.GetAnimationEvaluator()
+        self.__fbxImporter.Import(self.scene)
+        self.__fbxImporter.Destroy() # destroy importer once imported.
+        self.__rootNode = self.scene.GetRootNode()
+        self.__eval = self.scene.GetAnimationEvaluator()
 
         # get the first animation stack and animation layer
-        self.animStack = self.scene.GetSrcObject(fbx.FbxCriteria().ObjectType(fbx.FbxAnimStack.ClassId),
-                                             self.animStackIndex)
-        self.animLayer = self.animStack.GetMember(fbx.FbxCriteria().ObjectType(fbx.FbxAnimLayer.ClassId),
-                                          self.animLayerIndex)
+        self.__animStack = self.scene.GetSrcObject(fbx.FbxCriteria().ObjectType(fbx.FbxAnimStack.ClassId),
+                                             self.__animStackIndex)
+        self.__animLayer = self.__animStack.GetMember(fbx.FbxCriteria().ObjectType(fbx.FbxAnimLayer.ClassId),
+                                          self.__animLayerIndex)
 
     def destroy(self):
         self.fbxManager.Destroy()
@@ -68,17 +67,17 @@ class FBXSequence():
                 self.jointNameMap[row[0]] = row[1]
 
         # clear the current joint map
-        self.jointMap.clear()
+        self.__jointMap.clear()
 
         # go through each joint in nanme map calling function to find joint
         for joint in self.jointNameMap:
             searchName = self.jointNameMap[joint]
-            theNode = self.checkNodeNameMatch(self.rootNode, searchName)
-            self.jointMap[joint] = theNode
+            theNode = self.__checkNodeNameMatch(self.__rootNode, searchName)
+            self.__jointMap[joint] = theNode
 
     # Checks if the joint map exists
-    def checkJointMapExists(self):
-        if len(self.jointMap) == 0:
+    def __checkJointMapExists(self):
+        if len(self.__jointMap) == 0:
             print("joints haven't been mapped, programme stopped")
             print("use mapJoints to create a jointMap")
             sys.exit()
@@ -87,7 +86,7 @@ class FBXSequence():
             return True
 
     # recursive function that finds the node with a name ending with a string matching the searchString.
-    def checkNodeNameMatch(self, node, searchString):
+    def __checkNodeNameMatch(self, node, searchString):
         searchChild = False
         theNodeName = node.GetName()
         # check if searchString exists on the end of the joint name
@@ -97,48 +96,48 @@ class FBXSequence():
 
         # if not match then continue function to look at children
         for i in range(node.GetChildCount()):
-            nodeTest = self.checkNodeNameMatch(node.GetChild(i), searchString)
+            nodeTest = self.__checkNodeNameMatch(node.GetChild(i), searchString)
             if nodeTest is not None:
                 return nodeTest
 
-    def isJointAnimated(self, joint, animationType):
+    def __isJointAnimated(self, joint, animationType):
 
-        node = self.jointMap[joint]
+        node = self.__jointMap[joint]
         isAnimated = True
 
         for axis in ["X", "Y", "Z"]:
             if animationType == fmt.animationCurveType.ROTATION:
-                if node.LclRotation.GetCurve(self.animLayer, axis, False) == None:
+                if node.LclRotation.GetCurve(self.__animLayer, axis, False) == None:
                     isAnimated = False
             elif animationType == fmt.animationCurveType.TRANSLATION:
-                if node.LclTranslation.GetCurve(self.animLayer, axis, False) == None:
+                if node.LclTranslation.GetCurve(self.__animLayer, axis, False) == None:
                     isAnimated = False
 
         return isAnimated
 
-    def checkIfAnimated(self, joint, animationType):
+    def __checkIfAnimated(self, joint, animationType):
 
-        if self.isJointAnimated(joint, animationType) == False:
+        if self.__isJointAnimated(joint, animationType) == False:
             print(
                 "Joint is not animated. Joint must have animation curve to get joint global position. Use makeJointAnimatable() function to carete animation curves")
             sys.exit()
 
-    def getAllChildren(self, node):
+    def __getAllChildren(self, node):
         nodeList = []
         for i in range(node.GetChildCount()):
             childNode = node.GetChild(i)
             nodeList.append(childNode)
-            nodeList += self.getAllChildren(childNode)
+            nodeList += self.__getAllChildren(childNode)
         return nodeList
 
     # Get the time of the last keyframe in a specified animation curve, based on specfified joint, animation curve type ("rotation" or "translation") and axis.
     def getTimeOfLastKey(self, joint, animationType, axis):
 
         # check if joints exist
-        self.checkJointMapExists()
+        self.__checkJointMapExists()
 
         # get the animation curve
-        curves = self.getJointAnimCurves(joint, animationType)
+        curves = self.__getJointAnimCurves(joint, animationType)
 
         # get the time of the last key frame in the animation curve
         lastFrameTime = curves[axis].KeyGet(self.getNumberKeyframes(joint, animationType, axis) - 1).GetTime().GetSecondDouble()
@@ -146,7 +145,7 @@ class FBXSequence():
         return lastFrameTime
     def getJointKeyTimes(self, joint, animationType, axis):
 
-        node = self.jointMap[joint]
+        node = self.__jointMap[joint]
 
         axisLabels = ["X", "Y", "Z"]
         axisIndex = axisLabels[axis]
@@ -154,10 +153,10 @@ class FBXSequence():
         # check if the curve is animated
         curveIsAnimated = True
         if animationType == fmt.animationCurveType.ROTATION:
-            if node.LclRotation.GetCurve(self.animLayer, axisIndex, False) == None:
+            if node.LclRotation.GetCurve(self.__animLayer, axisIndex, False) == None:
                 curveIsAnimated = False
         elif animationType == fmt.animationCurveType.TRANSLATION:
-            if node.LclTranslation.GetCurve(self.animLayer, axisIndex, False) == None:
+            if node.LclTranslation.GetCurve(self.__animLayer, axisIndex, False) == None:
                 curveIsAnimated = False
         if curveIsAnimated == False:
             print(
@@ -165,7 +164,7 @@ class FBXSequence():
             sys.exit()
 
         # get time point for each ketframe in the animation curve
-        timeCurve = self.getJointAnimCurves(joint, animationType)[axis]
+        timeCurve = self.__getJointAnimCurves(joint, animationType)[axis]
         times = []
         for f in range(timeCurve.KeyGetCount()):
             time = timeCurve.KeyGet(f).GetTime()
@@ -177,17 +176,17 @@ class FBXSequence():
     def getNumberKeyframes(self, joint, animationType, axis):
 
         # check if joints exist
-        self.checkJointMapExists()
+        self.__checkJointMapExists()
 
         # get the animation stack (take), then animation layer in stack, then animation curve in animation layer
-        lCurves = self.getJointAnimCurves(joint, animationType)
+        lCurves = self.__getJointAnimCurves(joint, animationType)
 
         # return the number of keys in the first animation curve
         return lCurves[axis].KeyGetCount()
 
     def getFramesPerSecond(self, joint, animationType, axis):
 
-        curves = self.getJointAnimCurves(joint, animationType)[axis]
+        curves = self.__getJointAnimCurves(joint, animationType)[axis]
         t1 = curves.KeyGet(0).GetTime()
         t2 = curves.KeyGet(1).GetTime()
         fTime = t2 - t1
@@ -197,10 +196,10 @@ class FBXSequence():
         return fps
 
     # Gets the animation curves for a specified joint and animation curve type ("rotation" or "translation")
-    def getJointAnimCurves(self, joint, animationType):
+    def __getJointAnimCurves(self, joint, animationType):
 
         # check if joints exist
-        self.checkJointMapExists()
+        self.__checkJointMapExists()
 
         # create empty list to store XYZ animation curves
         lcurves = []
@@ -208,21 +207,24 @@ class FBXSequence():
 
         # if translation then get the translation nodes
         if animationType == "translation":
-            lcurves.append(self.jointMap[joint].LclTranslation.GetCurve(self.animLayer, "X", False))
-            lcurves.append(self.jointMap[joint].LclTranslation.GetCurve(self.animLayer, "Y", False))
-            lcurves.append(self.jointMap[joint].LclTranslation.GetCurve(self.animLayer, "Z", False))
+            lcurves.append(self.__jointMap[joint].LclTranslation.GetCurve(self.__animLayer, "X", False))
+            lcurves.append(self.__jointMap[joint].LclTranslation.GetCurve(self.__animLayer, "Y", False))
+            lcurves.append(self.__jointMap[joint].LclTranslation.GetCurve(self.__animLayer, "Z", False))
 
         # if translation then get the rotation nodes
         elif animationType == "rotation":
-            lcurves.append(self.jointMap[joint].LclRotation.GetCurve(self.animLayer, "X", False))
-            lcurves.append(self.jointMap[joint].LclRotation.GetCurve(self.animLayer, "Y", False))
-            lcurves.append(self.jointMap[joint].LclRotation.GetCurve(self.animLayer, "Z", False))
+            lcurves.append(self.__jointMap[joint].LclRotation.GetCurve(self.__animLayer, "X", False))
+            lcurves.append(self.__jointMap[joint].LclRotation.GetCurve(self.__animLayer, "Y", False))
+            lcurves.append(self.__jointMap[joint].LclRotation.GetCurve(self.__animLayer, "Z", False))
 
         # return the list of curves
         return lcurves
 
     # this function extracts the motion curves for a set of joints into a eular joint data class
     def getJointRotationAsEulers(self, jointList):
+
+        if type(jointList) == type("string"):
+            jointList = [jointList]
 
         # create empty list of curves
         curves = []
@@ -231,7 +233,7 @@ class FBXSequence():
         for joint in jointList:
             #get animation curves for joint
 
-            jointCurves = self.getJointAnimCurves(joint, "rotation")
+            jointCurves = self.__getJointAnimCurves(joint, "rotation")
 
             if jointCurves != None:
 
@@ -264,6 +266,9 @@ class FBXSequence():
 
     def getJointRotationAsQuaternions(self, jointList):
 
+        if type(jointList) == type("string"):
+            jointList = [jointList]
+
         eulerData = self.getJointRotationAsEulers(jointList)
         QuaternionData = np.empty((len(jointList), 4, eulerData.getFrameCount()))
         axes = ["x", "y", "z", "w"]
@@ -284,6 +289,9 @@ class FBXSequence():
         return jointData
 
     def getJointRotationAsMatrices(self, jointList):
+
+        if type(jointList) == type("string"):
+            jointList = [jointList]
 
         eulerData = self.getJointRotationAsEulers(jointList)
         MartrixData = np.empty((len(jointList), 9, eulerData.getFrameCount()))
@@ -309,20 +317,23 @@ class FBXSequence():
 
     def getJointRotationAsDisplacementVectors(self, jointList):
 
+        if type(jointList) == type("string"):
+            jointList = [jointList]
+
         axes = ["x", "y", "z"]
 
         # create empty list of curves
         curves = []
 
         # get the times of the keys
-        timeCurve = self.getJointAnimCurves(jointList[0], fmt.animationCurveType.ROTATION)[0]
+        timeCurve = self.__getJointAnimCurves(jointList[0], fmt.animationCurveType.ROTATION)[0]
         times = []
         for f in range(timeCurve.KeyGetCount()):
             time = timeCurve.KeyGet(f).GetTime()
             times.append(time)
 
         for j in jointList:
-            node = self.jointMap[j]
+            node = self.__jointMap[j]
             x = []
             y = []
             z = []
@@ -350,6 +361,9 @@ class FBXSequence():
     # the global translation of each joint is sampled at the time of each key frame in the joint specified in the syncSampleJoint.
     def getJointAsGlobalTranslations(self, jointList, sampleTimes):
 
+        if type(jointList) == type("string"):
+            jointList = [jointList]
+
         axes = ["x", "y", "z"]
 
         # create empty list of curves
@@ -357,7 +371,7 @@ class FBXSequence():
 
         for j in jointList:
 
-            node = self.jointMap[j]
+            node = self.__jointMap[j]
             x = []
             y = []
             z = []
@@ -379,13 +393,16 @@ class FBXSequence():
 
     def getJointAsRelativeTranslations(self, jointList, baseJoint, sampleTimes):
 
+        if type(jointList) == type("string"):
+            jointList = [jointList]
+
         axes = ["x", "y", "z"]
 
         # create empty list of curves
         curves = []
 
         # get the reverse translation for the root
-        baseNode = self.jointMap[baseJoint]
+        baseNode = self.__jointMap[baseJoint]
         inverseBaseMatricies = []
 
         for t in sampleTimes:
@@ -398,7 +415,7 @@ class FBXSequence():
         # get the translations between the base joint and joint
         for j in jointList:
 
-            node = self.jointMap[j]
+            node = self.__jointMap[j]
             x = []
             y = []
             z = []
@@ -430,9 +447,9 @@ class FBXSequence():
         totalFrames = int(round(totalTime * fps) + 1)
 
         # create a list of all the joints in sequence
-        motionRoot = self.jointMap["root"]
+        motionRoot = self.__jointMap["root"]
         nodeList = [motionRoot]
-        nodeList += self.getAllChildren(motionRoot)
+        nodeList += self.__getAllChildren(motionRoot)
 
         # set up a list of axis
         axis = ["X", "Y", "Z"]
@@ -442,18 +459,18 @@ class FBXSequence():
 
             # resample the translation curves
             for ax in axis:
-                curve = node.LclTranslation.GetCurve(self.animLayer, ax, False)
+                curve = node.LclTranslation.GetCurve(self.__animLayer, ax, False)
                 if curve != None:
-                    self.resampleCurve(curve, fps, totalFrames)
+                    self.__resampleCurve(curve, fps, totalFrames)
 
             # resample the rotation curves
             for ax in axis:
-                curve = node.LclRotation.GetCurve(self.animLayer, ax, False)
+                curve = node.LclRotation.GetCurve(self.__animLayer, ax, False)
                 if curve != None:
-                    self.resampleCurve(curve, fps, totalFrames)
+                    self.__resampleCurve(curve, fps, totalFrames)
 
     # resmaples an animation curve to a given frame rate and time limit
-    def resampleCurve(self, input, fps, totalFrames):
+    def __resampleCurve(self, input, fps, totalFrames):
 
         # create a new curve
         newCurve = fbx.FbxAnimCurve.Create(self.scene, "nCurve")
@@ -479,9 +496,9 @@ class FBXSequence():
     def UTW(self, currentDuration, newDuration, fps):
 
         # create a list of all the joints in sequence
-        motionRoot = self.jointMap[fmt.joint.root]
+        motionRoot = self.__jointMap[fmt.joint.root]
         nodeList = [motionRoot]
-        nodeList += self.getAllChildren(motionRoot)
+        nodeList += self.__getAllChildren(motionRoot)
 
         curveList = []
         axes = ["X", "Y", "Z"]
@@ -489,11 +506,11 @@ class FBXSequence():
         for node in nodeList:
             for a in axes:
 
-                tcurve = node.LclTranslation.GetCurve(self.animLayer, a, False)
+                tcurve = node.LclTranslation.GetCurve(self.__animLayer, a, False)
                 if tcurve != None:
                     curveList.append(tcurve)
 
-                rcurve = node.LclRotation.GetCurve(self.animLayer, a, False)
+                rcurve = node.LclRotation.GetCurve(self.__animLayer, a, False)
                 if rcurve != None:
                     curveList.append(rcurve)
 
@@ -503,17 +520,17 @@ class FBXSequence():
 
             if(newDuration > currentDuration):
                 for keyNum in range(numKeys - 1, -1, -1):
-                    self.retimeKey(animCurve, keyNum, newDuration, currentDuration)
+                    self.__retimeKey(animCurve, keyNum, newDuration, currentDuration)
 
             # if making it shorter go from first frame to last
             elif(newDuration < currentDuration):
                 for keyNum in range(numKeys):
-                    self.retimeKey(animCurve, keyNum, newDuration, currentDuration)
+                    self.__retimeKey(animCurve, keyNum, newDuration, currentDuration)
 
         self.resample(fps, newDuration)
 
-    # retime a key a to fit a new motion duration
-    def retimeKey(self, animCurve, keyNum, targetDuration, oldDuration):
+    # retime a key to fit a new motion duration
+    def __retimeKey(self, animCurve, keyNum, targetDuration, oldDuration):
 
         #get the normalised postion of the frame in relation to the position of the last frame
         oldKeyTime = animCurve.KeyGet(keyNum).GetTime().GetSecondDouble()
@@ -530,17 +547,17 @@ class FBXSequence():
         keyVal = animCurve.KeyGet(keyNum).GetValue()
         animCurve.KeySet(keyNum, frameTime, keyVal)
 
-    def applyTimewarp(self, DTWmap):
+    def applyTimewarp(self, frameMap):
 
         totalFramesOfOrginalMotion = self.getNumberKeyframes(fmt.joint.root, fmt.animationCurveType.ROTATION, fmt.axis.x)
 
-        motionRoot = self.jointMap["root"]
+        motionRoot = self.__jointMap["root"]
         nodeList = [motionRoot]
-        nodeList += self.getAllChildren(motionRoot)
+        nodeList += self.__getAllChildren(motionRoot)
 
         # get the first animation stack and animation layer
-        lAnimStack = self.animStack
-        lAnimLayer = self.animLayer
+        lAnimStack = self.__animStack
+        lAnimLayer = self.__animLayer
 
         # set up a list of axis
         axis = ["X", "Y", "Z"]
@@ -552,12 +569,12 @@ class FBXSequence():
                 if curve != None:
                     if curve.KeyGetCount() == totalFramesOfOrginalMotion:
                         #print("rot" + node.GetName())
-                        self.DTWtimewarpCurve(curve, DTWmap)
+                        self.__DTWtimewarpCurve(curve, frameMap)
                 curve = node.LclTranslation.GetCurve(lAnimLayer, ax, False)
                 if curve != None:
                     if curve.KeyGetCount() == totalFramesOfOrginalMotion:
                         #print("trans" + node.GetName())
-                        self.DTWtimewarpCurve(curve, DTWmap)
+                        self.__DTWtimewarpCurve(curve, frameMap)
 
         # set the timespane of the take
         startTime = fbx.FbxTime()
@@ -572,7 +589,7 @@ class FBXSequence():
         lAnimStack.SetReferenceTimeSpan(timeSpan)
 
     # applies a timewarp to a curve using DTWmap
-    def DTWtimewarpCurve(self, curve, DTWmap):
+    def __DTWtimewarpCurve(self, curve, DTWmap):
 
         fps = self.getFramesPerSecond(fmt.joint.root, fmt.animationCurveType.ROTATION, fmt.axis.x)
         frameInterval = 1. / float(fps)
@@ -599,39 +616,33 @@ class FBXSequence():
 
             time += frameInterval
 
-    def unrollJointAxis(self, joint, animationType, axis):
-        curve = self.getJointAnimCurves(joint, animationType)[axis]
-        self.unrollCurves([curve])
+    def unrollJointAxis(self, joint, axis):
+        curve = self.__getJointAnimCurves(joint, fmt.animationCurveType.ROTATION)[axis]
+        self.__unrollCurves([curve])
 
-    def unrollJoint(self, joint, animationType):
-        curves = self.getJointAnimCurves(joint, animationType)
-        self.unrollCurves(curves)
+    def unrollJoint(self, joint):
+        curves = self.__getJointAnimCurves(joint, fmt.animationCurveType.ROTATION)
+        self.__unrollCurves(curves)
 
     def unrollAllJoints(self):
         curves = []
 
         # create a list of all the joints in sequence
-        motionRoot = self.jointMap["root"]
+        motionRoot = self.__jointMap["root"]
         nodeList = [motionRoot]
-        nodeList += self.getAllChildren(motionRoot)
+        nodeList += self.__getAllChildren(motionRoot)
 
         # set up a list of axis
         axis = ["X", "Y", "Z"]
 
-        # resample of the frame in every joint
         for node in nodeList:
-
-            # resample the translation curves
             for ax in axis:
-                tCurve = node.LclTranslation.GetCurve(self.animLayer, ax, False)
-                if tCurve != None:
-                    curves.append(tCurve)
-                rCurve = node.LclRotation.GetCurve(self.animLayer, ax, False)
+                rCurve = node.LclRotation.GetCurve(self.__animLayer, ax, False)
                 if rCurve != None:
                     curves.append(rCurve)
-        self.unrollCurves(curves)
+        self.__unrollCurves(curves)
 
-    def unrollCurves(self, curves):
+    def __unrollCurves(self, curves):
 
         threshold = 340
 
@@ -651,15 +662,21 @@ class FBXSequence():
                     keyVal += 360
                 curve.KeySetValue(key, keyVal)
 
-    def makeJointAnimatable(self, joint, animationType):
+
+
+    def makeJointsAnimatable(self, jointList, animationType):
 
         # check if joints exist
-        self.checkJointMapExists()
+        self.__checkJointMapExists()
 
-        node = self.jointMap[joint]
+        if type(jointList) == type("string"):
+            jointList = [jointList]
 
-        for axis in ["X", "Y", "Z"]:
-            node.LclRotation.GetCurve(self.animLayer, axis, True)
+        for joint in jointList:
+            node = self.__jointMap[joint]
+
+            for axis in ["X", "Y", "Z"]:
+                node.LclRotation.GetCurve(self.__animLayer, axis, True)
 
     # save the scene as a .fbx file.
     def export(self, fullpath):
@@ -669,15 +686,13 @@ class FBXSequence():
         exporter.Destroy()
 
     # print a hierarchical display of the nodes along with ley information each node.
-    def PrintSceneHierarchy(self):
+    def printSceneHierarchy(self):
         sceneRoot = self.scene.GetRootNode()
 
         for i in range(sceneRoot.GetChildCount()):
-            self.PrintNodeHierarchyInfo(sceneRoot.GetChild(i), 0)
+            self.__printNodeName(sceneRoot.GetChild(i), 0)
 
-
-    def PrintNodeHierarchyInfo(self, node, depth):
-
+    def __printNodeName(self, node, depth):
         # start text with an indend position of node in hierarchy
         text = ""
         for i in range(depth):
@@ -686,52 +701,62 @@ class FBXSequence():
         # add the name of the node
         text += node.GetName()
 
-        # set up a list of axis
-        axis = ["X", "Y", "Z"]
-
-        # set variables for node information
-        nodeKeyInfo = []
-        nodeLastKeyframeTime = 0
-
-        # loop through each axis getting information on translation animation keyframes
-        for ax in axis:
-            nodeCurve = node.LclTranslation.GetCurve(self.animLayer, ax, False)
-            if nodeCurve != None:
-                numKeys = nodeCurve.KeyGetCount()
-                axisLastKeyframeTime = nodeCurve.KeyGet(numKeys - 1).GetTime().GetSecondDouble()
-                if axisLastKeyframeTime > nodeLastKeyframeTime:
-                    nodeLastKeyframeTime = axisLastKeyframeTime
-            else:
-                numKeys = 0
-            nodeKeyInfo.append("T" + ax + ":" + str(numKeys))
-
-        # loop through each axis getting information on rotational animation keyframes
-        for ax in axis:
-            nodeCurve = node.LclRotation.GetCurve(self.animLayer, ax, False)
-            if nodeCurve != None:
-                numKeys = nodeCurve.KeyGetCount()
-                axisLastKeyframeTime = nodeCurve.KeyGet(numKeys - 1).GetTime().GetSecondDouble()
-                if axisLastKeyframeTime > nodeLastKeyframeTime:
-                    nodeLastKeyframeTime = axisLastKeyframeTime
-            else:
-                numKeys = 0
-            nodeKeyInfo.append("R" + ax + ":" + str(numKeys))
-
-        # add key frame information for node
-        text += "  <Keyframe Counts = " + str(nodeKeyInfo) + ">"
-        text += "  <Last Keyframe Time (secs) = " + str(nodeLastKeyframeTime) + ">"
-
-        # print node information
         print(text)
 
         # search recursively for child nodes
         for i in range(node.GetChildCount()):
-            self.__PrintNodeHierarchyInfo(node.GetChild(i), depth + 1)
+            self.__printNodeName(node.GetChild(i), depth + 1)
+
+    def exportJointInfo(self, outputFile):
+
+        header = ["Mapped Name", "FBX Name", "Rotation Order", "TX Key Count", "TY Key Count", "TZ Key Count", "RX Key Count", "RY Key Count", "RZ Key Count", "Time of Last Key (secs)"]
+        data = []
+
+        for j in self.__jointMap.keys():
+            row = [j]
+            row.append(self.jointNameMap[j])
+
+            jointNode = self.__jointMap[j]
+            timeOfLastLey = 0
+
+            rotationOrder = self.getRotationOrder(j)
+            row.append(rotationOrder)
+
+            axis = ["X", "Y", "Z"]
+
+            # loop through each axis getting information on translation animation keyframes
+            for ax in axis:
+                nodeCurve = jointNode.LclTranslation.GetCurve(self.__animLayer, ax, False)
+                if nodeCurve != None:
+                    numKeys = nodeCurve.KeyGetCount()
+                    axisLastKeyframeTime = nodeCurve.KeyGet(numKeys - 1).GetTime().GetSecondDouble()
+                    if axisLastKeyframeTime > timeOfLastLey:
+                        timeOfLastLey = axisLastKeyframeTime
+                else:
+                    numKeys = 0
+                row.append(str(numKeys))
+
+            # loop through each axis getting information on rotational animation keyframes
+            for ax in axis:
+                nodeCurve = jointNode.LclRotation.GetCurve(self.__animLayer, ax, False)
+                if nodeCurve != None:
+                    numKeys = nodeCurve.KeyGetCount()
+                    axisLastKeyframeTime = nodeCurve.KeyGet(numKeys - 1).GetTime().GetSecondDouble()
+                    if axisLastKeyframeTime > timeOfLastLey:
+                        timeOfLastLey = axisLastKeyframeTime
+                else:
+                    numKeys = 0
+                row.append(str(numKeys))
+
+            row.append(timeOfLastLey)
+            data.append(row)
+
+        fmt.writeDataToCSV(outputFile, data, header)
 
     #returns the order in which joint rotaitons are being applied in a form that can be used with SciPy
     def getRotationOrder(self, joint):
 
-        theJoint = self.jointMap[joint]
+        theJoint = self.__jointMap[joint]
         fbxRotationOrder = theJoint.RotationOrder.Get()
         jointRotationOrder = "xyz"
 

@@ -11,14 +11,41 @@ motionFile2 = sampleDataFolder + "alined_walk_02.fbx"
 seq = fmt.importFBXSequence(motionFile)
 seq2 = fmt.importFBXSequence(motionFile2)
 
+
+#seq.printSceneHierarchy()
+
 # Map joints in the motion to joint names defined within the toolkit, using the jointMapFile.
 jointMapFile = sampleDataFolder + "viconMap.csv"
 seq.mapJoints(jointMapFile)
 seq2.mapJoints(jointMapFile)
 
+seq1Duration = seq.getTimeOfLastKey(fmt.joint.root, fmt.animationCurveType.ROTATION, fmt.axis.x)
+
+jointList = [fmt.joint.rshoulder, fmt.joint.lshoulder]
+seq.makeJointsAnimatable(jointList, fmt.animationCurveType.ROTATION)
+seq.resample(120, seq1Duration)
+timePoints = seq.getJointKeyTimes(fmt.joint.rhip, fmt.animationCurveType.ROTATION, fmt.axis.x)
+jointGlobalPositions = seq.getJointAsRelativeTranslations(jointList, fmt.joint.root, timePoints)
+
+print(jointGlobalPositions.data)
+
+
+#eq.makeJointAnimatable()
+
+#tw = fmt.timewarp(jointQuats2, jointQuats)
+#seq2.applyTimewarp(tw.DTWremap)
+#seq2.export(sampleDataFolder + "warpedFile.fbx")
+
+
+
+'''
+
+print(seq.file)
+
 # detime the end time of the motion based on the last key frame in the x-axis of the root joint.
 seq1Duration = seq.getTimeOfLastKey(fmt.joint.root, fmt.animationCurveType.ROTATION, fmt.axis.x)
 seq2Duration = seq2.getTimeOfLastKey(fmt.joint.root, fmt.animationCurveType.ROTATION, fmt.axis.x)
+seq.UTW(seq1Duration, seq2Duration, 120)
 
 print("seq1: " + str(seq1Duration))
 print("seq2: " + str(seq2Duration))
@@ -30,11 +57,16 @@ seq2.resample(120, seq2Duration)
 seq.export(sampleDataFolder + "resample.fbx")
 
 jointList = [fmt.joint.rhip, fmt.joint.lhip, fmt.joint.rknee, fmt.joint.lknee, fmt.joint.rshoulder, fmt.joint.lshoulder, fmt.joint.lelbow, fmt.joint.relbow]
-#jointList = [fmt.joint.rhip, fmt.joint.lhip, fmt.joint.rknee]
+jointList = [fmt.joint.rhip, fmt.joint.lhip]
 
-jointQuats = seq.getJointRotationAsQuaternions(jointList)
-jointQuats2 = seq2.getJointRotationAsQuaternions(jointList)
+jointEulers = seq.getJointRotationAsEulers(jointList)
 
+
+jointEulers.exportJointDataCSV(sampleDataFolder + "csvData.csv")
+
+'''
+
+'''
 print(jointQuats2.getFrameCount())
 print(jointQuats.getFrameCount())
 
@@ -51,7 +83,7 @@ c = fmt.st.measureCorrelationSimilarity(jointEulers.getFlatJointData(), jointEul
 print(c)
 
 
-'''
+
 sampleTimes = seq.getJointKeyTimes(fmt.joint.rhip, fmt.animationCurveType.ROTATION, fmt.axis.x)
 jointQuats = seq.getJointRotationAsQuaternions(jointList)
 jointQuats2 = seq2.getJointRotationAsQuaternions(jointList)

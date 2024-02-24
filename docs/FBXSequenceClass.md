@@ -327,10 +327,10 @@ If the given joint or list of joints are not already animated for a given animat
 
 Parameters:
 
-| Name         | Data Type  | Description                                                                                                                                                           |
-|--------------|------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| jointList    | String     | Joint name or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class.                                                              |
-| animationTYpe | String     | The type of animation curve (translation or rotation) to make animatable.  Specified using standardised animation types in FBXMotionToolkit.animationCurveType class. |
+| Name         | Data Type | Description                                                                                                                                                           |
+|--------------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| jointList    | String | Joint name or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class.                                                              |
+| animationTYpe | String | The type of animation curve (translation or rotation) to make animatable.  Specified using standardised animation types in FBXMotionToolkit.animationCurveType class. |
 
 Example:
 ```
@@ -432,7 +432,7 @@ motion2.export(sampleDataFolder + "warpedFile.fbx")
 
 ### getJointRotationAsEulers
 
-> JointDataObj FBXSequence.getJointRotationAsEulers(jointList)
+> JointDataEulersObj FBXSequence.getJointRotationAsEulers(jointList)
 
 Retrieves the rotation data for a single joint or list of joints as Eulars, returning the joint rotations for each joint on every frame in a single joint data object, which allows easier access and analysis of joint data.  
 
@@ -461,7 +461,7 @@ jointEulers = motion1.getJointRotationAsEulers(jointList)
 
 ### getJointRotationAsQuaternions
 
-> JointDataObj FBXSequence.getJointRotationAsQuaternions(jointList)
+> JointDataQuaternionsObj FBXSequence.getJointRotationAsQuaternions(jointList)
 
 Retrieves the rotation data for a single joint or list of joints and converts joint angles to Quaternions, returning the joint rotations for each joint on every frame in a single joint data object, which allows easier access and analysis of joint data.  Rotation orders of each joint are inspected to ensure correct conversion. All quaternions for each joint are expressed within the same canonical single cover space.
 
@@ -490,7 +490,7 @@ jointQuats = motion1.getJointRotationAsQuaternions(jointList)
 
 ### getJointRotationAsMatrices
 
-> JointDataObj FBXSequence.getJointRotationAsMatrices(jointList)
+> JointDataMatricesObj FBXSequence.getJointRotationAsMatrices(jointList)
 
 Retrieves the rotation data for a single joint or list of joints and converts joint angles to Matrices, returning the joint rotations for each joint on every frame in a single joint data object, which allows easier access and analysis of joint data.
 
@@ -519,7 +519,7 @@ jointMatrices = motion1.getJointRotationAsMatrices(jointList)
 
 ### getJointRotationAsDisplacementVectors
 
-> JointDataObj FBXSequence.getJointRotationAsDisplacementVectors(jointList)
+> JointDataDisplacementVectorsObj FBXSequence.getJointRotationAsDisplacementVectors(jointList)
 
 Retrieves the rotation data for a single joint or list of joints and converts joint angles to displacement vectors, returning the joint rotations for each joint on every frame in a single joint data object, which allows easier access and analysis of joint data.
 
@@ -532,6 +532,7 @@ Parameters:
 | Name      | Data Type   | Description                                                      |
 |-----------|-------------|------------------------------------------------------------------|
 | jointList | String List | A single joint or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class.  | 
+| sampleTimes | Float List | A list of times in seconds.                                                                                  | 
 
 Example:
 ```
@@ -550,7 +551,7 @@ jointDisplacementVectors = motion1.getJointRotationAsDisplacementVectors(jointLi
 
 ### getJointAsGlobalTranslations
 
-> JointDataObj FBXSequence.getJointAsGlobalTranslations(jointList, sampleTimes)
+> JointDataGlobalTranslationsObj FBXSequence.getJointAsGlobalTranslations(jointList, sampleTimes)
 
 Retrieves the rotation data for a single joint or list of joints as positions in global space, returning the global joint positions for each joint for every time point specified in sampleTimes.  All positional data is returned in a single joint data object, which allows easier access and analysis of joint data.
 
@@ -580,7 +581,7 @@ jointGlobalPositions = motion1.getJointAsGlobalTranslations(jointList, timePoint
 
 ### getJointAsRelativeTranslations
 
-> JointDataObj FBXSequence.getJointAsRelativeTranslations(jointList, baseJoint, sampleTimes)
+> jointDataRelativeTranslations FBXSequence.getJointAsRelativeTranslations(jointList, baseJoint, sampleTimes)
 
 Retrieves the rotation data for a single joint or list of joints as positions specified in the local coordinate space of a base joint, returning the joint positions for each joint for every time point specified in sampleTimes.  All positional data is returned in a single joint data object, which allows easier access and analysis of joint data.
 

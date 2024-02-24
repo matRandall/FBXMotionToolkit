@@ -11,7 +11,7 @@ def importFBXSequence(filepath):
     importedSeq = FBXSequence(filepath)
     return importedSeq
 
-class timewarp():
+class Timewarp():
 
     def __init__(self, inputMotion, targetMotion):
 

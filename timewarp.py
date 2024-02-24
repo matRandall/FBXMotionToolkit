@@ -80,10 +80,13 @@ def graphDTW(costMatrix, **kwargs):
 
     ax = plt.gca()
     ax.set_aspect("equal")
-    plt.pcolormesh(np_totalCostMatrix)
+    plt.pcolormesh(np_totalCostMatrix, rasterized=True)
 
     if DTWmap.shape[0] > 0:
         y = np.arange(0, np_totalCostMatrix.shape[0])
         plt.plot(DTWmap, y, color='r')
+
+    ax.set_xlabel("Input motion (frames)")
+    ax.set_ylabel("Target motion (frames)")
 
     plt.show()

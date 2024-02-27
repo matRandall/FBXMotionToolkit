@@ -58,7 +58,7 @@ seq.destroy()
 ```
 
 ## Documentation
-- <a href="docs/Initialising FBXSequence object.md">Initialising FBXSequence object</a>
+- <a href="docs/InitialisingFBXSequenceObject.md">Initialising FBXSequence object</a>
 - <a href="docs/FBXSequenceClass.md">FBXSequence class</a>
 - <a href="docs/JointDataClass.md">JointData class</a>
 - <a href="docs/SimilarityModule.md">SimilarityTools module</a>

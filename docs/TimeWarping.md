@@ -2,7 +2,7 @@
 
 ## Timewarp Class
 
-The FBXMotionTookit.Timewarp class, performs a dynamic time warp to temporally map the features of an input motion to that of a target motion.  The mapping is applied to the input motion using the FBXSequence.applyTimewarp() function.
+The FBXMotionToolkit.Timewarp class, performs a dynamic time warp to temporally map the features of an input motion to that of a target motion.  The mapping is applied to the input motion using the FBXSequence.applyTimewarp() function.
 
 The class utilises functions from the similarity and time warping modules, to preform the time warping.
 
@@ -52,13 +52,13 @@ motion2.destroy()
 
 | Name                  | Data Type   | Description                                                                                                                                                                                        |
 |-----------------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| costMatrix            | numpy array | Cost matrix of difference between every combination of input and target motion frames.  Array shape is (m, n), where m and n are the number of frames in the input and taregt motion respectively. |
+| costMatrix            | numpy array | Cost matrix of difference between every combination of input and target motion frames.  Array shape is (m, n), where m and n are the number of frames in the input and target motion respectively. |
 | accumulatedCostMatrix | numpy array | The values in the cost matrix accumulated, starting from cell (0,0) to cell (m,n).  Array shape is (m, n), where m and n are the number of frames in the input and target motion respectively.     |
 | DTWremap              | Int List    | A monotonic sequence of input frames that will result in a motion that is the optimal match to the target motion, as determined using DTW.                                                         |
 
 ### graphTimewarp
 
-> void grpahTimewarp()
+> void graphTimewarp()
 
 Plots the alignment path determined by the timewarp on top of a heatmap showing the accumulated cost matrix. 
 
@@ -70,7 +70,7 @@ tw.graphTimewarp()
 
 ## Timewarp module
 
-This module contains the functions for accumulating the cost matrix and plotting alignment, as used by the FBXMotionTookit.Timewarp class.  This allows time warping algorithms to be implemented based on different methods of cost accumulation and alignment path plotting.
+This module contains the functions for accumulating the cost matrix and plotting alignment, as used by the FBXMotionToolkit.Timewarp class.  This allows time warping algorithms to be implemented based on different methods of cost accumulation and alignment path plotting.
 
 The functions are pre-imported into the FBXMotionToolkit and can be access as FBXMotionToolkit.tw.
 
@@ -84,7 +84,7 @@ Parameters:
 
 | Name                  | Data Type   | Description                                                                                                                                                                                        |
 |-----------------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| costMatrix            | numpy array | Cost matrix of difference between every combination of input and target motion frames.  Array shape is (m, n), where m and n are the number of frames in the input and taregt motion respectively. |
+| costMatrix            | numpy array | Cost matrix of difference between every combination of input and target motion frames.  Array shape is (m, n), where m and n are the number of frames in the input and target motion respectively. |
 
 ### plotDTW
 
@@ -104,10 +104,10 @@ Plots a heatmap showing a cost matrix or accumulated cost matrix.  It also allow
 
 Parameters:
 
-| Name   | Data Type  | Description                               |
-|--------|------------|-------------------------------------------|
-| matrix | numpy array | A cost matrix or accumulated cost matrix. |
-| DTWMap | Int List   | A monotonic sequence of input frames that will result in a motion that is the optimal match to the target motion, as determined using DTW.|
+| Name   | Data Type   | Description                                                                                                                                |
+|--------|-------------|--------------------------------------------------------------------------------------------------------------------------------------------|
+| matrix | numpy array | A cost matrix or accumulated cost matrix.                                                                                                  |
+| DTWMap | Int List    | A monotonic sequence of input frames that will result in a motion that is the optimal match to the target motion, as determined using DTW. |
 
 ### Example
 

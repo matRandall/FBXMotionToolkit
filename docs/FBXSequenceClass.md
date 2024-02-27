@@ -5,11 +5,11 @@ An FBX sequence class is created by calling the importFBXSequence() as described
 ## Properties
 
 
-| Name         | Data Type       | Description                                                                                                                                                                                       |
-|--------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| file         | String          | Path of the FBX file imported into the FBXSequence instance                                                                                                                                       |
-| jointNameMap | Python Dictionary | Python dictionary of standardised names (key) and fbx joint names <value> pairs                                                                                                                   |
-| fbxScene     | fbxScene object | An FBX scene object with can be used directly with the FBX SDK to create additonal functionality to the FBXMotionToolkit.
+| Name         | Data Type         | Description                                                                                                               |
+|--------------|-------------------|---------------------------------------------------------------------------------------------------------------------------|
+| file         | String            | Path of the FBX file imported into the FBXSequence instance                                                               |
+| jointNameMap | Python Dictionary | Python dictionary of standardised names (key) and fbx joint names <value> pairs                                           |
+| fbxScene     | fbxScene object   | An FBX scene object with can be used directly with the FBX SDK to create additional functionality to the FBXMotionToolkit |.
 
 ## FBX File Functions
 
@@ -21,9 +21,9 @@ Maps the joints within an FBX file to a standard set of joint names used by the 
 
 Parameters:
 
-| Name | Data Type | Description                                         |
-| --- | --- |-----------------------------------------------------|
-| JointMapFilePath | String | Full file name with path of the .csv joint map file |
+| Name             | Data Type | Description                                         |
+|------------------|-----------|-----------------------------------------------------|
+| JointMapFilePath | String    | Full file name with path of the .csv joint map file |
 
 Example:
 ```
@@ -87,8 +87,8 @@ Exports information on every mapped joint map as a .csv file.  Exports the follo
 Parameters:
 
 | Name       | Data Type | Description                                      |
-|------------| --- |--------------------------------------------------|
-| outputFile | String | Full file name with path for exporting .csv file |
+|------------|-----------|--------------------------------------------------|
+| outputFile | String    | Full file name with path for exporting .csv file |
 
 Example:
 ```
@@ -104,8 +104,8 @@ Exports the FBXSequence as a .fbx file.
 Parameters:
 
 | Name       | Data Type | Description                                      |
-|------------| --- |--------------------------------------------------|
-| outputFile | String | Full file name with path for exporting .fbx file |
+|------------|-----------|--------------------------------------------------|
+| outputFile | String    | Full file name with path for exporting .fbx file |
 
 Example:
 ```
@@ -133,11 +133,11 @@ Get the time of the last key frame in a joint animation curve in seconds.
 
 Parameters:
 
-| Name         | Data Type  | Description                                                                                                                                                                        |
-|--------------|------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| joint        | String     | The name of joint to read the last key frame from.  Specified using standardised joint names in FBXMotionToolkit.joint class.                                                      |
-| animationTYpe | String     | The type of animation curve (translation or rotation) to read the last key frame from.  Specified using standardised animation types in FBXMotionToolkit.animationCurveType class. |
-| axis         | Int        | The axis to read the last key frame from.  Specified using standardised axis indexes (x=0, y=1, z=0) as specified in FBXMotionToolkit.axis class. |
+| Name          | Data Type | Description                                                                                                                                                                        |
+|---------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| joint         | String    | The name of joint to read the last key frame from.  Specified using standardised joint names in FBXMotionToolkit.joint class.                                                      |
+| animationTYpe | String    | The type of animation curve (translation or rotation) to read the last key frame from.  Specified using standardised animation types in FBXMotionToolkit.animationCurveType class. |
+| axis          | Int       | The axis to read the last key frame from.  Specified using standardised axis indexes (x=0, y=1, z=0) as specified in FBXMotionToolkit.axis class.                                  |
 
 Returns:
 
@@ -160,11 +160,11 @@ Get the times of each key frame in a joint animation curve in seconds.
 
 Parameters:
 
-| Name         | Data Type  | Description                                                                                                                                                             |
-|--------------|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| joint        | String     | The name of joint to get key times from.  Specified using standardised joint names in FBXMotionToolkit.joint class.                                                     |
-| animationTYpe | String     | The type of animation curve (translation or rotation) to get key times from.  Specified using standardised animation types in FBXMotionToolkit.animationCurveType class. |
-| axis         | Int        | The axis to get keytimes from.  Specified using standardised axis indexes (x=0, y=1, z=0) as specified in FBXMotionToolkit.axis class.                                  |
+| Name          | Data Type | Description                                                                                                                                                              |
+|---------------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| joint         | String    | The name of joint to get key times from.  Specified using standardised joint names in FBXMotionToolkit.joint class.                                                      |
+| animationTYpe | String    | The type of animation curve (translation or rotation) to get key times from.  Specified using standardised animation types in FBXMotionToolkit.animationCurveType class. |
+| axis          | Int       | The axis to get key times from.  Specified using standardised axis indexes (x=0, y=1, z=0) as specified in FBXMotionToolkit.axis class.                                  |
 
 Returns:
 
@@ -187,11 +187,11 @@ Get the number of key frames in a joint animation curve.
 
 Parameters:
 
-| Name         | Data Type  | Description                                                                                                                                                                   |
-|--------------|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| joint        | String     | The name of joint to get key frame count from.  Specified using standardised joint names in FBXMotionToolkit.joint class.                                                     |
-| animationTYpe | String     | The type of animation curve (translation or rotation) to get key frame count from.  Specified using standardised animation types in FBXMotionToolkit.animationCurveType class. |
-| axis         | Int        | The axis to get ket frame count from.  Specified using standardised axis indexes (x=0, y=1, z=0) as specified in FBXMotionToolkit.axis class.                                 |
+| Name          | Data Type | Description                                                                                                                                                                    |
+|---------------|-----------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| joint         | String    | The name of joint to get key frame count from.  Specified using standardised joint names in FBXMotionToolkit.joint class.                                                      |
+| animationTYpe | String    | The type of animation curve (translation or rotation) to get key frame count from.  Specified using standardised animation types in FBXMotionToolkit.animationCurveType class. |
+| axis          | Int       | The axis to get ket frame count from.  Specified using standardised axis indexes (x=0, y=1, z=0) as specified in FBXMotionToolkit.axis class.                                  |
 
 Returns:
 
@@ -214,11 +214,11 @@ Get the frame rate of the animation curve, based on the first two keys in the an
 
 Parameters:
 
-| Name         | Data Type  | Description                                                                                                                                                   |
-|--------------|------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| joint        | String     | The name of joint to read fps from.  Specified using standardised joint names in FBXMotionToolkit.joint class.                                                |
-| animationTYpe | String     | The type of animation curve (translation or rotation) to read fps from.  Specified using standardised animation types in FBXMotionToolkit.animationCurveType class. |
-| axis         | Int        | The axis to read the fps from.  Specified using standardised axis indexes (x=0, y=1, z=0) as specified in FBXMotionToolkit.axis class.                        |
+| Name          | Data Type | Description                                                                                                                                                         |
+|---------------|-----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| joint         | String    | The name of joint to read fps from.  Specified using standardised joint names in FBXMotionToolkit.joint class.                                                      |
+| animationTYpe | String    | The type of animation curve (translation or rotation) to read fps from.  Specified using standardised animation types in FBXMotionToolkit.animationCurveType class. |
+| axis          | Int       | The axis to read the fps from.  Specified using standardised axis indexes (x=0, y=1, z=0) as specified in FBXMotionToolkit.axis class.                              |
 
 Returns:
 
@@ -327,10 +327,10 @@ If the given joint or list of joints are not already animated for a given animat
 
 Parameters:
 
-| Name         | Data Type | Description                                                                                                                                                           |
-|--------------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| jointList    | String | Joint name or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class.                                                              |
-| animationTYpe | String | The type of animation curve (translation or rotation) to make animatable.  Specified using standardised animation types in FBXMotionToolkit.animationCurveType class. |
+| Name          | Data Type | Description                                                                                                                                                           |
+|---------------|-----------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| jointList     | String    | Joint name or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class.                                                              |
+| animationTYpe | String    | The type of animation curve (translation or rotation) to make animatable.  Specified using standardised animation types in FBXMotionToolkit.animationCurveType class. |
 
 Example:
 ```
@@ -350,9 +350,9 @@ Resamples all the animated axis of every joint in an FBXSequence at a given fram
 Parameters:
 
 | Name    | Data Type | Description                                               |
-|---------|----------|-----------------------------------------------------------|
-| fps     | Int      | The frame rate in frames per second                       |
-| entTime | Float    | The duration of the resampled animation curves in seconds |
+|---------|-----------|-----------------------------------------------------------|
+| fps     | Int       | The frame rate in frames per second                       |
+| entTime | Float     | The duration of the resampled animation curves in seconds |
 
 Example:
 ```
@@ -372,11 +372,11 @@ UTW (Universal Time Warp), uniformly re-times all animation within the FBXSequen
 
 Parameters:
 
-| Name           | Data Type | Description                                                        |
-|----------------|-----------|--------------------------------------------------------------------|
+| Name            | Data Type | Description                                                        |
+|-----------------|-----------|--------------------------------------------------------------------|
 | currentDuration | Float     | The current duration of the animation in seconds                   |
-| newDuration    | Float     | The new duration that the animation should be warped to in seconds |
-| fps            | Int       | The frame rate in frames per second                                |
+| newDuration     | Float     | The new duration that the animation should be warped to in seconds |
+| fps             | Int       | The frame rate in frames per second                                |
 
 Example:
 ```
@@ -398,13 +398,13 @@ motion2.resample(duration2, duration1, 120)
 
 > void FBXSequence.applyTimewarp(frameMap)
 
-Applies a timewarp as specified in a frame map to all animated joints in the FBXSequence.  The timewarping tools module can be used create a frame map that is a DTW (Dynamic Timewarp) in which one motion is timewarped to fit another.
+Applies a timewarp as specified in a frame map to all animated joints in the FBXSequence.  The timewarping tools module can be used create a frame map that is a DTW (Dynamic Timewarp) in which one motion is time warped to fit another.
 
 Parameters:
 
-| Name        | Data Type | Description                                                  |
-|-------------|----------|--------------------------------------------------------------|
-| frameMap    | Int List | A list of integers specifying a sequence of frame remappings | 
+| Name     | Data Type | Description                                              |
+|----------|-----------|----------------------------------------------------------|
+| frameMap | Int List  | A list of integers specifying a sequence of frame remaps | 
 
 Example:
 ```
@@ -434,15 +434,15 @@ motion2.export(sampleDataFolder + "warpedFile.fbx")
 
 > JointDataEulersObj FBXSequence.getJointRotationAsEulers(jointList)
 
-Retrieves the rotation data for a single joint or list of joints as Eulars, returning the joint rotations for each joint on every frame in a single joint data object, which allows easier access and analysis of joint data.  
+Retrieves the rotation data for a single joint or list of joints as Eulers, returning the joint rotations for each joint on every frame in a single joint data object, which allows easier access and analysis of joint data.  
 
 All joints must be animatable with key frames at matching times on all joint axis.  Use FBXSequence.makeJointAnimatable() and FBXSequence.resample() to make joints conform to one another.
 
 Parameters:
 
-| Name      | Data Type   | Description                                                      |
-|-----------|-------------|------------------------------------------------------------------|
-| jointList | String List | A single joint or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class.  | 
+| Name      | Data Type   | Description                                                                                                  |
+|-----------|-------------|--------------------------------------------------------------------------------------------------------------|
+| jointList | String List | A single joint or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class. | 
 
 Example:
 ```
@@ -469,9 +469,9 @@ All joints must be animatable with key frames at matching times on all joint axi
 
 Parameters:
 
-| Name      | Data Type   | Description                                                      |
-|-----------|-------------|------------------------------------------------------------------|
-| jointList | String List | A single joint or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class.  | 
+| Name      | Data Type   | Description                                                                                                  |
+|-----------|-------------|--------------------------------------------------------------------------------------------------------------|
+| jointList | String List | A single joint or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class. | 
 
 Example:
 ```
@@ -498,9 +498,9 @@ All joints must be animatable with key frames at matching times on all joint axi
 
 Parameters:
 
-| Name      | Data Type   | Description                                                      |
-|-----------|-------------|------------------------------------------------------------------|
-| jointList | String List | A single joint or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class.  | 
+| Name      | Data Type   | Description                                                                                                  |
+|-----------|-------------|--------------------------------------------------------------------------------------------------------------|
+| jointList | String List | A single joint or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class. | 
 
 Example:
 ```
@@ -529,10 +529,10 @@ All joints must be animatable with key frames at matching times on all joint axi
 
 Parameters:
 
-| Name      | Data Type   | Description                                                      |
-|-----------|-------------|------------------------------------------------------------------|
-| jointList | String List | A single joint or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class.  | 
-| sampleTimes | Float List | A list of times in seconds.                                                                                  | 
+| Name        | Data Type   | Description                                                                                                  |
+|-------------|-------------|--------------------------------------------------------------------------------------------------------------|
+| jointList   | String List | A single joint or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class. | 
+| sampleTimes | Float List  | A list of times in seconds.                                                                                  | 
 
 Example:
 ```
@@ -559,10 +559,10 @@ All joints must be animatable with key frames at matching times on all joint axi
 
 Parameters:
 
-| Name        | Data Type  | Description                                                                                                  |
-|-------------|------------|--------------------------------------------------------------------------------------------------------------|
+| Name        | Data Type   | Description                                                                                                  |
+|-------------|-------------|--------------------------------------------------------------------------------------------------------------|
 | jointList   | String List | A single joint or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class. | 
-| sampleTimes | Float List | A list of times in seconds.                                                                                  | 
+| sampleTimes | Float List  | A list of times in seconds.                                                                                  | 
 
 Example:
 ```
@@ -589,11 +589,11 @@ All joints must be animatable with key frames at matching times on all joint axi
 
 Parameters:
 
-| Name       | Data Type | Description                                                                                                  |
-|------------|--------|--------------------------------------------------------------------------------------------------------------|
-| jointList  | String List | A single joint or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class. | 
-| baseJoint  | String | A single joint.  Specified using standardised joint names in FBXMotionToolkit.joint class.                   | 
-| sampleTimes | Float List | A list of times in seconds.                                                                                  | 
+| Name        | Data Type   | Description                                                                                                  |
+|-------------|-------------|--------------------------------------------------------------------------------------------------------------|
+| jointList   | String List | A single joint or list of joints.  Specified using standardised joint names in FBXMotionToolkit.joint class. | 
+| baseJoint   | String      | A single joint.  Specified using standardised joint names in FBXMotionToolkit.joint class.                   | 
+| sampleTimes | Float List  | A list of times in seconds.                                                                                  | 
 
 Example:
 ```

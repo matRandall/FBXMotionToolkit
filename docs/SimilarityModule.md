@@ -16,10 +16,10 @@ Both jointData objects must support the getDifferenceBetweenFrames() function, b
 
 Parameters:
 
-| Name        | Data Type | Description                                                                                |
-|-------------|-----------|--------------------------------------------------------------------------------------------|
-| inputJointData  | jointData | An instance of a jointData Class                                                           | 
-| targetJointData   | jointData | An instance of a jointData Class |
+| Name            | Data Type | Description                      |
+|-----------------|-----------|----------------------------------|
+| inputJointData  | jointData | An instance of a jointData Class | 
+| targetJointData | jointData | An instance of a jointData Class |
 
 Example:
 ```
@@ -102,10 +102,10 @@ Both jointData objects must support the getDifferenceBetweenFrames() function, b
 
 Parameters:
 
-| Name        | Data Type | Description                                                                                |
-|-------------|-----------|--------------------------------------------------------------------------------------------|
-| inputJointData  | jointData | An instance of a jointData Class                                                           | 
-| targetJointData   | jointData | An instance of a jointData Class |
+| Name            | Data Type | Description                      |
+|-----------------|-----------|----------------------------------|
+| inputJointData  | jointData | An instance of a jointData Class | 
+| targetJointData | jointData | An instance of a jointData Class |
 
 Example:
 ```

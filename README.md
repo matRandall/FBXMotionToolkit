@@ -59,7 +59,7 @@ seq.destroy()
 
 ## Documentation
 - <a href="docs/Initialising FBXSequence object.md">Initialising FBXSequence object</a>
-- FBXSequence class
-- JointData class
-- SimilarityTools module
-- TimewarpingTools module
+- <a href="docs/FBXSequenceClass.md">FBXSequence class</a>
+- <a href="docs/JointDataClass.md">JointData class</a>
+- <a href="docs/SimilarityModule.md">SimilarityTools module</a>
+- <a href="docs/TimeWarping.md">TimewarpingTools module</a>
